@@ -1,0 +1,159 @@
+{
+	"name": "DynamicMap",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"value": "@pipeline().parameters.P_reserve",
+						"type": "Expression"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_file_level",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "destination",
+							"folder": "raw_gold_data",
+							"fileName": "Gold_reserves_tonnes.csv"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_file_level",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "source",
+							"folder": "raw_gold_data",
+							"fileName": "Gold_reserves_tonnes.csv"
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"P_reserve": {
+				"type": "object",
+				"defaultValue": {
+					"type": "TabularTranslator",
+					"mappings": [
+						{
+							"source": {
+								"name": "Country",
+								"type": "String",
+								"physicalType": "String"
+							},
+							"sink": {
+								"name": "Country",
+								"type": "String",
+								"physicalType": "String"
+							}
+						},
+						{
+							"source": {
+								"name": "2020",
+								"type": "String",
+								"physicalType": "String"
+							},
+							"sink": {
+								"name": "2020",
+								"type": "String",
+								"physicalType": "String"
+							}
+						},
+						{
+							"source": {
+								"name": "2021",
+								"type": "String",
+								"physicalType": "String"
+							},
+							"sink": {
+								"name": "2021",
+								"type": "String",
+								"physicalType": "String"
+							}
+						},
+						{
+							"source": {
+								"name": "2022",
+								"type": "String",
+								"physicalType": "String"
+							},
+							"sink": {
+								"name": "2022",
+								"type": "String",
+								"physicalType": "String"
+							}
+						},
+						{
+							"source": {
+								"name": "2023",
+								"type": "String",
+								"physicalType": "String"
+							},
+							"sink": {
+								"name": "2023",
+								"type": "String",
+								"physicalType": "String"
+							}
+						},
+						{
+							"source": {
+								"name": "Average gold reserves",
+								"type": "String",
+								"physicalType": "String"
+							},
+							"sink": {
+								"name": "Average gold reserves",
+								"type": "String",
+								"physicalType": "String"
+							}
+						}
+					],
+					"typeConversion": true,
+					"typeConversionSettings": {
+						"allowDataTruncation": true,
+						"treatBooleanAsNumber": false
+					}
+				}
+			}
+		},
+		"annotations": []
+	}
+}
