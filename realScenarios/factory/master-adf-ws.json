@@ -1,0 +1,9 @@
+{
+	"name": "master-adf-ws",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "1f76ab66-3600-4f9a-b7a6-12d7d46b3c75",
+		"tenantId": "9c085992-18a4-4a42-bc7e-76dcb48d6217"
+	}
+}
