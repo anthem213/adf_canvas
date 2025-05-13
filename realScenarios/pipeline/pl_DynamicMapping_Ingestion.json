@@ -36,8 +36,8 @@
 				}
 			},
 			{
-				"name": "PrepareMappingJSON",
-				"type": "SetVariable",
+				"name": "ForEach1",
+				"type": "ForEach",
 				"dependsOn": [
 					{
 						"activity": "GetColumnMapping",
@@ -46,26 +46,112 @@
 						]
 					}
 				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetColumnMapping').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "AppendMappingObject",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "ColumnMapping",
+								"value": {
+									"value": "@json(concat('{ \"source\": \"', item().SourceColumn, '\", \"sink\": \"', item().TargetColumn, '\" }'))\n",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "MappingJSON",
-					"value": "@json(concat(\n  '[',\n  join(\n    array(\n      forEach(\n        item in activity('GetColumnMapping').output.value,\n        concat(\n          '{\"source\":\"', item.SourceColumn, '\",\"sink\":\"', item.TargetColumn, '\"}'\n        )\n      )\n    ),\n    ','\n  ),\n  ']'\n))\n"
-				}
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"value": "@variables('ColumnMapping')",
+						"type": "Expression"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_file_level",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "demofolder",
+							"folder": "practice",
+							"fileName": {
+								"value": "@pipeline().parameters.fileName",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaName": "dbo",
+							"tableName": "Patient_Master"
+						}
+					}
+				]
 			}
 		],
 		"parameters": {
 			"SourceSystem": {
 				"type": "string",
 				"defaultValue": "HospitalA "
+			},
+			"fileName": {
+				"type": "string"
 			}
 		},
 		"variables": {
 			"MappingJSON": {
 				"type": "String"
+			},
+			"ColumnMapping": {
+				"type": "Array"
 			}
 		},
 		"annotations": []
