@@ -5,8 +5,6 @@
 			{
 				"name": "Stored procedure1",
 				"type": "SqlServerStoredProcedure",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Copy data from DB to adls",
@@ -27,23 +25,23 @@
 					"storedProcedureName": "[dbo].[sp_log_pipeline_run]",
 					"storedProcedureParameters": {
 						"EndTime": {
-							"value": "",
+							"value": "@utcNow()",
 							"type": "Datetime"
 						},
 						"PipelineName": {
-							"value": "",
+							"value": "@pipeline().Pipeline",
 							"type": "String"
 						},
 						"RunId": {
-							"value": "",
+							"value": "@pipeline().RunId",
 							"type": "Guid"
 						},
 						"StartTime": {
-							"value": "",
+							"value": "@pipeline().TriggerTime",
 							"type": "Datetime"
 						},
 						"Status": {
-							"value": "",
+							"value": "\"Success\"",
 							"type": "String"
 						}
 					}
@@ -56,8 +54,6 @@
 			{
 				"name": "Copy data from DB to adls",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -115,8 +111,6 @@
 			{
 				"name": "Stored procedure1_copy1",
 				"type": "SqlServerStoredProcedure",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Copy data from DB to adls",
@@ -132,29 +126,35 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
-			},
-			{
-				"name": "Get Metadata1",
-				"type": "GetMetadata",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataset": {
-						"referenceName": "AzureSqlTable1",
-						"type": "DatasetReference"
-					},
-					"fieldList": [
-						"structure",
-						"exists"
-					]
+					"storedProcedureName": "[dbo].[sp_log_pipeline_run]",
+					"storedProcedureParameters": {
+						"EndTime": {
+							"value": "@utcNow()",
+							"type": "Datetime"
+						},
+						"PipelineName": {
+							"value": "@pipeline().Pipeline",
+							"type": "String"
+						},
+						"RunId": {
+							"value": "@pipeline().RunId",
+							"type": "Guid"
+						},
+						"StartTime": {
+							"value": "@pipeline().TriggerTime",
+							"type": "Datetime"
+						},
+						"Status": {
+							"value": "\"Failure\"",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
