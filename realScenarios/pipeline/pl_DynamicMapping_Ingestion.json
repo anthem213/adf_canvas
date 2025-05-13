@@ -1,0 +1,73 @@
+{
+	"name": "pl_DynamicMapping_Ingestion",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetColumnMapping",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT SourceColumn, TargetColumn \nFROM ColumnMapping \nWHERE SourceSystem = '@{pipeline().parameters.SourceSystem}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaName": "na",
+							"tableName": "na"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "PrepareMappingJSON",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "GetColumnMapping",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "MappingJSON",
+					"value": "@json(concat(\n  '[',\n  join(\n    array(\n      forEach(\n        item in activity('GetColumnMapping').output.value,\n        concat(\n          '{\"source\":\"', item.SourceColumn, '\",\"sink\":\"', item.TargetColumn, '\"}'\n        )\n      )\n    ),\n    ','\n  ),\n  ']'\n))\n"
+				}
+			}
+		],
+		"parameters": {
+			"SourceSystem": {
+				"type": "string",
+				"defaultValue": "HospitalA "
+			}
+		},
+		"variables": {
+			"MappingJSON": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
