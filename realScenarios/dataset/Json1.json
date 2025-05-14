@@ -5,12 +5,20 @@
 			"referenceName": "ls_datalake",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"jsonFile": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "jsonMap.json",
+				"fileName": {
+					"value": "@dataset().jsonFile",
+					"type": "Expression"
+				},
 				"folderPath": "practice",
 				"fileSystem": "demofolder"
 			}
