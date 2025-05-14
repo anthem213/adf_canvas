@@ -3,70 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
-				"type": "Copy",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "DelimitedTextSource",
-						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "DelimitedTextReadSettings"
-						}
-					},
-					"sink": {
-						"type": "AzureSqlSink",
-						"writeBehavior": "upsert",
-						"upsertSettings": {
-							"useTempDB": true,
-							"keys": [
-								"PatientID"
-							]
-						},
-						"sqlWriterUseTableLock": false,
-						"disableMetricsCollection": false
-					},
-					"enableStaging": false,
-					"translator": {
-						"value": "@json('{\n            \"type\": \"TabularTranslator\",\n            \"mappings\": [\n                {\n                    \"source\": {\n                        \"name\": \"ID\",\n                        \"type\": \"String\",\n                        \"physicalType\": \"String\"\n                    },\n                    \"sink\": {\n                        \"name\": \"PatientID\",\n                        \"type\": \"Int32\",\n                        \"physicalType\": \"int\"\n                    }\n                },\n                {\n                    \"source\": {\n                        \"name\": \"FName\",\n                        \"type\": \"String\",\n                        \"physicalType\": \"String\"\n                    },\n                    \"sink\": {\n                        \"name\": \"FirstName\",\n                        \"type\": \"String\",\n                        \"physicalType\": \"varchar\"\n                    }\n                },\n                {\n                    \"source\": {\n                        \"name\": \"DateOfBirth\",\n                        \"type\": \"String\",\n                        \"physicalType\": \"String\"\n                    },\n                    \"sink\": {\n                        \"name\": \"DOB\",\n                        \"type\": \"DateTime\",\n                        \"physicalType\": \"date\"\n                    }\n                }\n            ]\n           \n        }')",
-						"type": "Expression"
-					}
-				},
-				"inputs": [
-					{
-						"referenceName": "ds_file_level",
-						"type": "DatasetReference",
-						"parameters": {
-							"container": "demofolder",
-							"folder": "practice",
-							"fileName": "HospitalB"
-						}
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "AzureSqlTable2",
-						"type": "DatasetReference",
-						"parameters": {
-							"schemaName": "dbo",
-							"tableName": "Patient_Master"
-						}
-					}
-				]
-			},
-			{
 				"name": "Lookup into jsonMapping",
 				"type": "Lookup",
 				"dependsOn": [],
@@ -80,18 +16,15 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "JsonSource",
+						"type": "ExcelSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
 							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "JsonReadSettings"
 						}
 					},
 					"dataset": {
-						"referenceName": "Json1",
+						"referenceName": "ds_excel",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
@@ -139,7 +72,23 @@
 										"type": "DelimitedTextReadSettings"
 									}
 								},
-								"enableStaging": false
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "upsert",
+									"upsertSettings": {
+										"useTempDB": true,
+										"keys": [
+											"PatientID"
+										]
+									},
+									"sqlWriterUseTableLock": false,
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"value": "@json(item().JsonMapping)\n",
+									"type": "Expression"
+								}
 							},
 							"inputs": [
 								{
@@ -148,7 +97,20 @@
 									"parameters": {
 										"container": "demofolder",
 										"folder": "practice",
-										"fileName": "HospitalB"
+										"fileName": {
+											"value": "@item().sourceFile",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSqlTable2",
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaName": "dbo",
+										"tableName": "Patient_Master"
 									}
 								}
 							]

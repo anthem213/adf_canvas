@@ -1,0 +1,31 @@
+{
+	"name": "ds_excel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_datalake",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "mappingTable.xlsx",
+				"folderPath": "practice",
+				"fileSystem": "demofolder"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "sourceFile",
+				"type": "String"
+			},
+			{
+				"name": "JsonMapping",
+				"type": "String"
+			}
+		]
+	}
+}
