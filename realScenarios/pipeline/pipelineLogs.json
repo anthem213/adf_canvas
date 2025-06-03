@@ -25,19 +25,31 @@
 					"storedProcedureName": "[dbo].[sp_log_pipeline_run]",
 					"storedProcedureParameters": {
 						"EndTime": {
-							"value": "@utcNow()",
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
 							"type": "Datetime"
 						},
 						"PipelineName": {
-							"value": "@pipeline().Pipeline",
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"RunId": {
-							"value": "@pipeline().RunId",
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
 							"type": "Guid"
 						},
 						"StartTime": {
-							"value": "@pipeline().TriggerTime",
+							"value": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
 							"type": "Datetime"
 						},
 						"Status": {
@@ -131,19 +143,31 @@
 					"storedProcedureName": "[dbo].[sp_log_pipeline_run]",
 					"storedProcedureParameters": {
 						"EndTime": {
-							"value": "@utcNow()",
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
 							"type": "Datetime"
 						},
 						"PipelineName": {
-							"value": "@pipeline().Pipeline",
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"RunId": {
-							"value": "@pipeline().RunId",
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
 							"type": "Guid"
 						},
 						"StartTime": {
-							"value": "@pipeline().TriggerTime",
+							"value": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
 							"type": "Datetime"
 						},
 						"Status": {
