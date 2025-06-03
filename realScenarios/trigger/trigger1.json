@@ -13,7 +13,7 @@
 		],
 		"type": "BlobEventsTrigger",
 		"typeProperties": {
-			"blobPathBeginsWith": "/demofolder/blobs/'Product/BigMart Sales.csv'",
+			"blobPathBeginsWith": "/demofolder/blobs/Product/BigMart Sales.csv",
 			"ignoreEmptyBlobs": true,
 			"scope": "/subscriptions/4e26caa9-58c3-4f2f-9f24-68e155f71044/resourceGroups/mission100adeAniketrg/providers/Microsoft.Storage/storageAccounts/mission100adeaniketstg",
 			"events": [
