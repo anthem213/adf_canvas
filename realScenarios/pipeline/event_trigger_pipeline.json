@@ -49,22 +49,22 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ds_param_folderLevel",
+						"referenceName": "ds_file_level",
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "demofolder",
-							"folder": "Product"
+							"folder": "Product",
+							"fileName": "BigMart Sales.csv"
 						}
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "ds_file_level",
+						"referenceName": "ds_param_folderLevel",
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "demofolder",
-							"folder": "practice",
-							"fileName": "eventFile"
+							"folder": "practice"
 						}
 					}
 				]
