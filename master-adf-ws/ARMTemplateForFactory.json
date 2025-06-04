@@ -31,7 +31,7 @@
 			"type": "string",
 			"defaultValue": "https://mission100adeaniketstg.dfs.core.windows.net/"
 		},
-		"trigger1_properties_typeProperties_scope": {
+		"event_trigger_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/4e26caa9-58c3-4f2f-9f24-68e155f71044/resourceGroups/mission100adeAniketrg/providers/Microsoft.Storage/storageAccounts/mission100adeaniketstg"
 		}
@@ -751,6 +751,90 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_param_folderLevel')]",
 				"[concat(variables('factoryId'), '/datasets/ds_file_level')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/event_trigger_pipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_file_level",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": "demofolder",
+									"folder": "Product",
+									"fileName": "BigMart Sales.csv"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_param_folderLevel",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": "demofolder",
+									"folder": "practice"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_file_level')]",
+				"[concat(variables('factoryId'), '/datasets/ds_param_folderLevel')]"
 			]
 		},
 		{
@@ -1571,7 +1655,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/trigger1')]",
+			"name": "[concat(parameters('factoryName'), '/event_trigger')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1580,7 +1664,7 @@
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "pipelineLogs",
+							"referenceName": "event_trigger_pipeline",
 							"type": "PipelineReference"
 						},
 						"parameters": {}
@@ -1588,16 +1672,18 @@
 				],
 				"type": "BlobEventsTrigger",
 				"typeProperties": {
-					"blobPathBeginsWith": "/demofolder/blobs/Product/BigMart Sales.csv",
+					"blobPathBeginsWith": "/demofolder/blobs/Product/",
+					"blobPathEndsWith": ".csv",
 					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('trigger1_properties_typeProperties_scope')]",
+					"scope": "[parameters('event_trigger_properties_typeProperties_scope')]",
 					"events": [
-						"Microsoft.Storage.BlobCreated"
+						"Microsoft.Storage.BlobCreated",
+						"Microsoft.Storage.BlobDeleted"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pipelineLogs')]"
+				"[concat(variables('factoryId'), '/pipelines/event_trigger_pipeline')]"
 			]
 		}
 	]
