@@ -1,0 +1,11 @@
+{
+	"name": "pipeline2",
+	"properties": {
+		"variables": {
+			"folder Name": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
