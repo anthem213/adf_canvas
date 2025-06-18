@@ -5,11 +5,17 @@
 		"factoryName": {
 			"value": "master-adf-ws"
 		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_password": {
 			"value": ""
 		},
 		"ls_datalake_accountKey": {
 			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://mission100adeaniketstg.dfs.core.windows.net/"
 		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "mission100adeaniketsever.database.windows.net"
@@ -22,6 +28,12 @@
 		},
 		"ls_datalake_properties_typeProperties_url": {
 			"value": "https://mission100adeaniketstg.dfs.core.windows.net/"
+		},
+		"event_trigger_properties_event_trigger_pipeline_parameters_SourcePath": {
+			"value": "@triggerBody().filePath"
+		},
+		"event_trigger_properties_event_trigger_pipeline_parameters_SourceFile": {
+			"value": "@triggerBody().fileName"
 		},
 		"event_trigger_properties_typeProperties_scope": {
 			"value": "/subscriptions/4e26caa9-58c3-4f2f-9f24-68e155f71044/resourceGroups/mission100adeAniketrg/providers/Microsoft.Storage/storageAccounts/mission100adeaniketstg"
