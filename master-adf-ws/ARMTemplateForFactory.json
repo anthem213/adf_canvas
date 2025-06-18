@@ -1996,7 +1996,7 @@
 					"dependsOn": [
 						{
 							"type": "TumblingWindowTriggerDependencyReference",
-							"offset": "-0.00:55:00",
+							"offset": "-0.00:05:00",
 							"referenceTrigger": {
 								"referenceName": "trigger_a",
 								"type": "TriggerReference"
