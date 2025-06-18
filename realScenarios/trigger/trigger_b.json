@@ -1,0 +1,35 @@
+{
+	"name": "trigger_b",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipeline": {
+			"pipelineReference": {
+				"referenceName": "pipeline3",
+				"type": "PipelineReference"
+			}
+		},
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Minute",
+			"interval": 5,
+			"startTime": "2025-06-18T05:00:00Z",
+			"endTime": "2025-06-19T05:00:00Z",
+			"delay": "00:00:00",
+			"maxConcurrency": 50,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": [
+				{
+					"type": "TumblingWindowTriggerDependencyReference",
+					"offset": "-0.00:55:00",
+					"referenceTrigger": {
+						"referenceName": "trigger_a",
+						"type": "TriggerReference"
+					}
+				}
+			]
+		}
+	}
+}
