@@ -1332,7 +1332,23 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select * from egg",
+								"sqlReaderStoredProcedureName": "[[dbo].[cust_sale]",
+								"storedProcedureParameters": {
+									"enddate": {
+										"type": "String",
+										"value": {
+											"value": "@pipeline().parameters.p_end_date",
+											"type": "Expression"
+										}
+									},
+									"startdate": {
+										"type": "String",
+										"value": {
+											"value": "@pipeline().parameters.p_start_date",
+											"type": "Expression"
+										}
+									}
+								},
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
@@ -1359,9 +1375,12 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "AzureSqlTable1",
+								"referenceName": "AzureSqlTable2",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"schemaName": "na",
+									"tableName": "na"
+								}
 							}
 						],
 						"outputs": [
@@ -1380,10 +1399,18 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"parameters": {
+					"p_end_date": {
+						"type": "string"
+					},
+					"p_start_date": {
+						"type": "string"
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable2')]",
 				"[concat(variables('factoryId'), '/datasets/ds_file_level')]"
 			]
 		},

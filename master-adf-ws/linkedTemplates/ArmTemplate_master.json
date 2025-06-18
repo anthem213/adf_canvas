@@ -51,6 +51,14 @@
 			"type": "string",
 			"defaultValue": "/subscriptions/4e26caa9-58c3-4f2f-9f24-68e155f71044/resourceGroups/mission100adeAniketrg/providers/Microsoft.Storage/storageAccounts/mission100adeaniketstg"
 		},
+		"tumble_trigger_properties_pipeline_parameters_p_end_date": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowEndtime"
+		},
+		"tumble_trigger_properties_pipeline_parameters_p_start_date": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowstarttime"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -128,6 +136,12 @@
 					},
 					"event_trigger_properties_typeProperties_scope": {
 						"value": "[parameters('event_trigger_properties_typeProperties_scope')]"
+					},
+					"tumble_trigger_properties_pipeline_parameters_p_end_date": {
+						"value": "[parameters('tumble_trigger_properties_pipeline_parameters_p_end_date')]"
+					},
+					"tumble_trigger_properties_pipeline_parameters_p_start_date": {
+						"value": "[parameters('tumble_trigger_properties_pipeline_parameters_p_start_date')]"
 					}
 				}
 			},
