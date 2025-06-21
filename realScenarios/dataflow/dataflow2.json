@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "dataflow2",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -9,7 +9,7 @@
 						"referenceName": "direct_csv_file",
 						"type": "DatasetReference"
 					},
-					"name": "source"
+					"name": "source1"
 				}
 			],
 			"sinks": [
@@ -21,14 +21,7 @@
 					"name": "sink1"
 				}
 			],
-			"transformations": [
-				{
-					"name": "highFilter"
-				},
-				{
-					"name": "window1"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"source(output(",
 				"          Region as string,",
@@ -36,23 +29,19 @@
 				"          ItemType as string,",
 				"          SalesChannel as string,",
 				"          OrderPriority as string,",
-				"          OrderID as string,",
-				"          UnitsSold as string,",
-				"          UnitPrice as string,",
-				"          UnitCost as string,",
-				"          TotalRevenue as string,",
-				"          TotalCost as string,",
-				"          TotalProfit as string,",
-				"          ShippingCost as string",
+				"          OrderID as integer,",
+				"          UnitsSold as short,",
+				"          UnitPrice as double,",
+				"          UnitCost as double,",
+				"          TotalRevenue as double,",
+				"          TotalCost as double,",
+				"          TotalProfit as double,",
+				"          ShippingCost as integer",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> source",
-				"source filter(OrderPriority == 'H') ~> highFilter",
-				"highFilter window(over(Region),",
-				"     desc(TotalProfit, true),",
-				"     totalProfitRegionWise = sum(toInteger(TotalProfit))) ~> window1",
-				"window1 sink(allowSchemaDrift: true,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          Region as string,",
@@ -68,13 +57,13 @@
 				"          TotalCost as string,",
 				"          TotalProfit as string",
 				"     ),",
-				"     rowUrlColumn:'Region',",
+				"     partitionFileNames:['regionalData.csv'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 1) ~> sink1"
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
