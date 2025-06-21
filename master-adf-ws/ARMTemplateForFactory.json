@@ -50,14 +50,6 @@
 		"event_trigger_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/4e26caa9-58c3-4f2f-9f24-68e155f71044/resourceGroups/mission100adeAniketrg/providers/Microsoft.Storage/storageAccounts/mission100adeaniketstg"
-		},
-		"tumble_trigger_properties_pipeline_parameters_p_end_date": {
-			"type": "string",
-			"defaultValue": "@trigger().outputs.windowEndtime"
-		},
-		"tumble_trigger_properties_pipeline_parameters_p_start_date": {
-			"type": "string",
-			"defaultValue": "@trigger().outputs.windowstarttime"
 		}
 	},
 	"variables": {
@@ -1973,38 +1965,372 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/tumble_trigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "pipeline3",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"p_end_date": "[parameters('tumble_trigger_properties_pipeline_parameters_p_end_date')]",
-						"p_start_date": "[parameters('tumble_trigger_properties_pipeline_parameters_p_start_date')]"
-					}
-				},
-				"type": "TumblingWindowTrigger",
+				"type": "MappingDataFlow",
 				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2025-06-18T00:00:00Z",
-					"endTime": "2025-06-19T00:00:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "direct_csv_file",
+								"type": "DatasetReference"
+							},
+							"name": "source"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "direct_csv_adls_sink",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "highFilter"
+						},
+						{
+							"name": "window1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Region as string,",
+						"          Country as string,",
+						"          ItemType as string,",
+						"          SalesChannel as string,",
+						"          OrderPriority as string,",
+						"          OrderID as string,",
+						"          UnitsSold as string,",
+						"          UnitPrice as string,",
+						"          UnitCost as string,",
+						"          TotalRevenue as string,",
+						"          TotalCost as string,",
+						"          TotalProfit as string,",
+						"          ShippingCost as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source",
+						"source filter(OrderPriority == 'H') ~> highFilter",
+						"highFilter window(over(Region),",
+						"     desc(TotalProfit, true),",
+						"     totalProfitRegionWise = sum(toInteger(TotalProfit))) ~> window1",
+						"window1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Region as string,",
+						"          Country as string,",
+						"          ItemType as string,",
+						"          SalesChannel as string,",
+						"          OrderPriority as string,",
+						"          OrderID as string,",
+						"          UnitsSold as string,",
+						"          UnitPrice as string,",
+						"          UnitCost as string,",
+						"          TotalRevenue as string,",
+						"          TotalCost as string,",
+						"          TotalProfit as string",
+						"     ),",
+						"     rowUrlColumn:'Region',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1) ~> sink1"
+					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pipeline3')]"
+				"[concat(variables('factoryId'), '/datasets/direct_csv_file')]",
+				"[concat(variables('factoryId'), '/datasets/direct_csv_adls_sink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline4')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source": {},
+									"sink1": {}
+								},
+								"linkedServiceParameters": {}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/direct_csv_file')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_datalake",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Order_new_column-JGMJyk1UrJ-0ZSxQ0UXgO.csv",
+						"folderPath": "processed1",
+						"fileSystem": "demofolder"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Region",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "ItemType",
+						"type": "String"
+					},
+					{
+						"name": "SalesChannel",
+						"type": "String"
+					},
+					{
+						"name": "OrderPriority",
+						"type": "String"
+					},
+					{
+						"name": "OrderID",
+						"type": "String"
+					},
+					{
+						"name": "UnitsSold",
+						"type": "String"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "String"
+					},
+					{
+						"name": "UnitCost",
+						"type": "String"
+					},
+					{
+						"name": "TotalRevenue",
+						"type": "String"
+					},
+					{
+						"name": "TotalCost",
+						"type": "String"
+					},
+					{
+						"name": "TotalProfit",
+						"type": "String"
+					},
+					{
+						"name": "ShippingCost",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_datalake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow2')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "direct_csv_file",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "direct_csv_adls_sink",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          Region as string,",
+						"          Country as string,",
+						"          ItemType as string,",
+						"          SalesChannel as string,",
+						"          OrderPriority as string,",
+						"          OrderID as integer,",
+						"          UnitsSold as short,",
+						"          UnitPrice as double,",
+						"          UnitCost as double,",
+						"          TotalRevenue as double,",
+						"          TotalCost as double,",
+						"          TotalProfit as double,",
+						"          ShippingCost as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Region as string,",
+						"          Country as string,",
+						"          ItemType as string,",
+						"          SalesChannel as string,",
+						"          OrderPriority as string,",
+						"          OrderID as string,",
+						"          UnitsSold as string,",
+						"          UnitPrice as string,",
+						"          UnitCost as string,",
+						"          TotalRevenue as string,",
+						"          TotalCost as string,",
+						"          TotalProfit as string",
+						"     ),",
+						"     partitionFileNames:['regionalData.csv'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/direct_csv_file')]",
+				"[concat(variables('factoryId'), '/datasets/direct_csv_adls_sink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/direct_csv_adls_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_datalake",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "processed1",
+						"fileSystem": "demofolder"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Region",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "ItemType",
+						"type": "String"
+					},
+					{
+						"name": "SalesChannel",
+						"type": "String"
+					},
+					{
+						"name": "OrderPriority",
+						"type": "String"
+					},
+					{
+						"name": "OrderID",
+						"type": "String"
+					},
+					{
+						"name": "UnitsSold",
+						"type": "String"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "String"
+					},
+					{
+						"name": "UnitCost",
+						"type": "String"
+					},
+					{
+						"name": "TotalRevenue",
+						"type": "String"
+					},
+					{
+						"name": "TotalCost",
+						"type": "String"
+					},
+					{
+						"name": "TotalProfit",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_datalake')]"
 			]
 		}
 	]

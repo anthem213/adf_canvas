@@ -38,12 +38,6 @@
 		"event_trigger_properties_typeProperties_scope": {
 			"value": "/subscriptions/4e26caa9-58c3-4f2f-9f24-68e155f71044/resourceGroups/mission100adeAniketrg/providers/Microsoft.Storage/storageAccounts/mission100adeaniketstg"
 		},
-		"tumble_trigger_properties_pipeline_parameters_p_end_date": {
-			"value": "@trigger().outputs.windowEndtime"
-		},
-		"tumble_trigger_properties_pipeline_parameters_p_start_date": {
-			"value": "@trigger().outputs.windowstarttime"
-		},
 		"containerUri": {
 			"value": ""
 		},
