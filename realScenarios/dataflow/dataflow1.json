@@ -1,0 +1,71 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "direct_csv_file",
+						"type": "DatasetReference"
+					},
+					"name": "source"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_param_folderLevel",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "highFilter"
+				},
+				{
+					"name": "window1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Region as string,",
+				"          Country as string,",
+				"          ItemType as string,",
+				"          SalesChannel as string,",
+				"          OrderPriority as string,",
+				"          OrderID as string,",
+				"          UnitsSold as string,",
+				"          UnitPrice as string,",
+				"          UnitCost as string,",
+				"          TotalRevenue as string,",
+				"          TotalCost as string,",
+				"          TotalProfit as string,",
+				"          ShippingCost as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     partitionBy('key',",
+				"          0,",
+				"          OrderPriority",
+				"     )) ~> source",
+				"source filter(OrderPriority == 'H') ~> highFilter",
+				"highFilter window(over(Region),",
+				"     desc(TotalProfit, true),",
+				"     totalProfitRegionWise = sum(toInteger(TotalProfit))) ~> window1",
+				"window1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     rowUrlColumn:'Region',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1) ~> sink1"
+			]
+		}
+	}
+}
